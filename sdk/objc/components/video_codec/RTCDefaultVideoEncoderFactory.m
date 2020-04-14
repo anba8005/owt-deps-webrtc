@@ -18,6 +18,9 @@
 #if defined(RTC_ENABLE_VP9)
 #import "api/video_codec/RTCVideoEncoderVP9.h"
 #endif
+#if defined(OWT_USE_H265)
+#import "WebRTC/RTCVideoCodecH265.h"
+#endif
 
 @implementation RTCDefaultVideoEncoderFactory
 
@@ -48,14 +51,20 @@
   RTCVideoCodecInfo *vp9Info = [[RTCVideoCodecInfo alloc] initWithName:kRTCVideoCodecVp9Name];
 #endif
 
-  return @[
+  NSMutableArray<RTCVideoCodecInfo*>* codecs = [@[
     constrainedHighInfo,
     constrainedBaselineInfo,
     vp8Info,
 #if defined(RTC_ENABLE_VP9)
     vp9Info,
 #endif
-  ];
+  ] mutableCopy];
+#if defined(OWT_USE_H265)
+  if (@available(iOS 11.0, *)) {
+    [codecs addObject:[[RTCVideoCodecInfo alloc] initWithName:kRTCVideoCodecH265Name]];
+  }
+#endif
+  return codecs;
 }
 
 - (id<RTCVideoEncoder>)createEncoder:(RTCVideoCodecInfo *)info {
@@ -66,6 +75,12 @@
 #if defined(RTC_ENABLE_VP9)
   } else if ([info.name isEqualToString:kRTCVideoCodecVp9Name]) {
     return [RTCVideoEncoderVP9 vp9Encoder];
+#endif
+#if defined(OWT_USE_H265)
+  } else if ([info.name isEqualToString:kRTCVideoCodecH265Name]) {
+	  if (@available(iOS 11.0, *)) {
+		return [[RTCVideoEncoderH265 alloc] initWithCodecInfo:info];
+	  }
 #endif
   }
 
