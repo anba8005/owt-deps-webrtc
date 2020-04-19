@@ -12,6 +12,7 @@ package org.webrtc;
 
 import static org.webrtc.MediaCodecUtils.EXYNOS_PREFIX;
 import static org.webrtc.MediaCodecUtils.QCOM_PREFIX;
+import static org.webrtc.MediaCodecUtils.HISI_PREFIX;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
@@ -141,6 +142,12 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && name.startsWith(EXYNOS_PREFIX)) {
       return true;
     }
+    // Support H.264 HP decoding on Hisilicon chips for Android N and above.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && name.startsWith(HISI_PREFIX)) {
+      return true;
+    }
+
+
     return false;
   }
 }
