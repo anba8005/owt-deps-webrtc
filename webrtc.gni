@@ -15,7 +15,6 @@ import("//build_overrides/build.gni")
 import("//build_overrides/ssl/ssl.gni")
 
 build_with_owt = false
-rtc_use_h265 = true
 
 if (!build_with_chromium && is_component_build) {
   print("The Gn argument `is_component_build` is currently " +
