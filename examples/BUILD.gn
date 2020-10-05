@@ -691,6 +691,8 @@ if (is_linux || is_win) {
         "Xcomposite",
         "Xext",
         "Xrender",
+        "va",
+        "va-drm",
       ]
       deps += [ "//build/config/linux/gtk" ]
     }
