@@ -476,6 +476,11 @@ CpuOveruseOptions::CpuOveruseOptions()
     high_encode_usage_threshold_percent = 40;  // Roughly 1/4 of 200%.
 #endif  // defined(WEBRTC_MAC) && !defined(WEBRTC_IOS)
 
+#if defined(WEBRTC_ANDROID)
+  // Since all modern android phones are minimum quad-core, consider core count 4
+  high_encode_usage_threshold_percent = 300;  // Roughly 3/4 of 400%.
+#endif
+
   // Note that we make the interval 2x+epsilon wide, since libyuv scaling steps
   // are close to that (when squared). This wide interval makes sure that
   // scaling up or down does not jump all the way across the interval.

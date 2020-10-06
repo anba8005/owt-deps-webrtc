@@ -515,8 +515,14 @@ CpuOveruseOptions ResourceAdaptationProcessor::GetCpuOveruseOptions() const {
   // Hardware accelerated encoders are assumed to be pipelined; give them
   // additional overuse time.
   if (encoder_settings_->encoder_info().is_hardware_accelerated) {
+#if defined(WEBRTC_ANDROID)
+    // Since all modern android phones are minimum quad-core, consider core count 4
+    options.low_encode_usage_threshold_percent = 300;
+    options.high_encode_usage_threshold_percent = 350;
+#else
     options.low_encode_usage_threshold_percent = 150;
     options.high_encode_usage_threshold_percent = 200;
+#endif
   }
   if (experiment_cpu_load_estimator_) {
     options.filter_time_ms = 5 * rtc::kNumMillisecsPerSec;
