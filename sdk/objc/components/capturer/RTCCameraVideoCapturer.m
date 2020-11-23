@@ -151,9 +151,11 @@ const int64_t kNanosecondsPerSecond = 1000000000;
   [self stopCaptureWithCompletionHandler:nil];
 }
 
+#if TARGET_OS_IPHONE
 - (void)setLockLandscape:(NSInteger)lockLandscape {
     _lockLandscape = lockLandscape;
 }
+#endif
 
 - (void)startCaptureWithDevice:(AVCaptureDevice *)device
                         format:(AVCaptureDeviceFormat *)format
