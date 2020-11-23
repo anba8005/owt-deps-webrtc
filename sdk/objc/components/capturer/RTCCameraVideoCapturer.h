@@ -51,6 +51,11 @@ NS_EXTENSION_UNAVAILABLE_IOS("Camera not available in app extensions.")
 // Stops the capture session asynchronously.
 - (void)stopCapture;
 
+// Locks landscape => 0 - no lock 1 - lanscape 2 - landscape left 3 - landscape right
+#if TARGET_OS_IPHONE
+- (void)setLockLandscape:(NSInteger)lockLandscape;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END

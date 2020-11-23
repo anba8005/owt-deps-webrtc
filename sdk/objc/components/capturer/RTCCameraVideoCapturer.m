@@ -42,6 +42,7 @@ const int64_t kNanosecondsPerSecond = 1000000000;
   RTCVideoRotation _rotation;
 #if TARGET_OS_IPHONE
   UIDeviceOrientation _orientation;
+  NSInteger _lockLandscape;
   BOOL _generatingOrientationNotifications;
 #endif
 }
@@ -75,6 +76,7 @@ const int64_t kNanosecondsPerSecond = 1000000000;
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
 #if TARGET_OS_IPHONE
     _orientation = UIDeviceOrientationPortrait;
+    _lockLandscape = 0;
     _rotation = RTCVideoRotation_90;
     [center addObserver:self
                selector:@selector(deviceOrientationDidChange:)
@@ -147,6 +149,10 @@ const int64_t kNanosecondsPerSecond = 1000000000;
 
 - (void)stopCapture {
   [self stopCaptureWithCompletionHandler:nil];
+}
+
+- (void)setLockLandscape:(NSInteger)lockLandscape {
+    _lockLandscape = lockLandscape;
 }
 
 - (void)startCaptureWithDevice:(AVCaptureDevice *)device
@@ -263,24 +269,70 @@ const int64_t kNanosecondsPerSecond = 1000000000;
         (AVCaptureDeviceInput *)((AVCaptureInputPort *)connection.inputPorts.firstObject).input;
     usingFrontCamera = AVCaptureDevicePositionFront == deviceInput.device.position;
   }
-  switch (_orientation) {
-    case UIDeviceOrientationPortrait:
-      _rotation = RTCVideoRotation_90;
-      break;
-    case UIDeviceOrientationPortraitUpsideDown:
-      _rotation = RTCVideoRotation_270;
-      break;
-    case UIDeviceOrientationLandscapeLeft:
-      _rotation = usingFrontCamera ? RTCVideoRotation_180 : RTCVideoRotation_0;
-      break;
-    case UIDeviceOrientationLandscapeRight:
-      _rotation = usingFrontCamera ? RTCVideoRotation_0 : RTCVideoRotation_180;
-      break;
-    case UIDeviceOrientationFaceUp:
-    case UIDeviceOrientationFaceDown:
-    case UIDeviceOrientationUnknown:
-      // Ignore.
-      break;
+  if (_lockLandscape == 0) { // no lock
+    switch (_orientation) {
+      case UIDeviceOrientationPortrait:
+        _rotation = RTCVideoRotation_90;
+        break;
+      case UIDeviceOrientationPortraitUpsideDown:
+        _rotation = RTCVideoRotation_270;
+        break;
+      case UIDeviceOrientationLandscapeLeft:
+        _rotation = usingFrontCamera ? RTCVideoRotation_180 : RTCVideoRotation_0;
+        break;
+      case UIDeviceOrientationLandscapeRight:
+        _rotation = usingFrontCamera ? RTCVideoRotation_0 : RTCVideoRotation_180;
+        break;
+      case UIDeviceOrientationFaceUp:
+      case UIDeviceOrientationFaceDown:
+      case UIDeviceOrientationUnknown:
+        // Ignore.
+        break;
+    }
+  } else if (_lockLandscape == 1) { // auto lock
+    switch (_orientation) {
+      case UIDeviceOrientationPortrait:
+      case UIDeviceOrientationLandscapeLeft:
+        _rotation = usingFrontCamera ? RTCVideoRotation_180 : RTCVideoRotation_0;
+        break;
+      case UIDeviceOrientationPortraitUpsideDown:	
+      case UIDeviceOrientationLandscapeRight:
+        _rotation = usingFrontCamera ? RTCVideoRotation_0 : RTCVideoRotation_180;
+        break;
+      case UIDeviceOrientationFaceUp:
+      case UIDeviceOrientationFaceDown:
+      case UIDeviceOrientationUnknown:
+        // Ignore.
+        break;
+    }
+  } else if (_lockLandscape == 2) { // left lock
+    switch (_orientation) {
+      case UIDeviceOrientationPortrait:
+      case UIDeviceOrientationLandscapeLeft:
+      case UIDeviceOrientationPortraitUpsideDown:	
+      case UIDeviceOrientationLandscapeRight:
+        _rotation = usingFrontCamera ? RTCVideoRotation_180 : RTCVideoRotation_0;
+        break;
+      case UIDeviceOrientationFaceUp:
+      case UIDeviceOrientationFaceDown:
+      case UIDeviceOrientationUnknown:
+        // Ignore.
+        break;
+    }
+  } else if (_lockLandscape == 3) { // right lock
+    switch (_orientation) {
+      case UIDeviceOrientationPortrait:
+      case UIDeviceOrientationLandscapeLeft:
+      case UIDeviceOrientationPortraitUpsideDown:	
+      case UIDeviceOrientationLandscapeRight:
+        _rotation = usingFrontCamera ? RTCVideoRotation_0 : RTCVideoRotation_180;
+        break;
+      case UIDeviceOrientationFaceUp:
+      case UIDeviceOrientationFaceDown:
+      case UIDeviceOrientationUnknown:
+        // Ignore.
+        break;
+    }
   }
 #else
   // No rotation on Mac.
